@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cartes de missions v3.5.1 — GF / AoF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=IM+Fell+English:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --radius: 10px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh; font-family:'Inter',sans-serif;
+    background:var(--bg); color:var(--text); transition:background .3s,color .3s;
+    padding-bottom:60px;
+  }
+  body.theme-gf{
+    --bg:#121316; --panel:#1d1f24; --panel2:#26282f; --accent:#c0392b; --accent2:#8b1e1e;
+    --text:#e9e9ec; --muted:#9a9ca3; --border:#33353d; --gold:#d7b56d;
+    --font-display:'Orbitron',sans-serif;
+  }
+  body.theme-aof{
+    --bg:#f2e8d5; --panel:#fbf4e4; --panel2:#efe2c4; --accent:#7a2e1e; --accent2:#5c2115;
+    --text:#3a2c1c; --muted:#7a6a52; --border:#d8c79f; --gold:#8a6a2f;
+    --font-display:'IM Fell English',serif;
+  }
+  h1,h2,h3{font-family:var(--font-display); letter-spacing:.03em;}
+  #app{max-width:1200px;margin:0 auto;padding:20px 16px 80px;}
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
+    border-bottom:2px solid var(--accent); padding-bottom:14px; margin-bottom:20px;
+  }
+  .topbar h1{margin:0; font-size:1.5rem; color:var(--accent);}
+  .badge{
+    display:inline-block; padding:3px 10px; border-radius:20px; font-size:.75rem;
+    background:var(--panel2); border:1px solid var(--border); color:var(--muted);
+  }
+  .btn{
+    font-family:'Inter',sans-serif; font-weight:600; font-size:.85rem; cursor:pointer;
+    background:var(--accent); color:#fff; border:none; border-radius:8px; padding:9px 16px;
+    transition:transform .12s, filter .12s;
+  }
+  .btn:hover{filter:brightness(1.12); transform:translateY(-1px);}
+  .btn:disabled{opacity:.35; cursor:not-allowed; transform:none;}
+  .btn.secondary{background:var(--panel2); color:var(--text); border:1px solid var(--border);}
+  .btn.small{padding:5px 10px; font-size:.75rem; border-radius:6px;}
+  .btn.ghost{background:transparent; color:var(--accent); border:1px solid var(--accent);}
+  .card-block{
+    background:var(--panel); border:1px solid var(--border); border-radius:var(--radius);
+    padding:16px; margin-bottom:16px;
+  }
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:820px){.grid2{grid-template-columns:1fr;}}
+  .mode-list{display:grid; gap:10px; grid-template-columns:1fr 1fr;}
+  @media (max-width:700px){.mode-list{grid-template-columns:1fr;}}
+  .mode-opt{
+    border:2px solid var(--border); border-radius:var(--radius); padding:12px 14px; cursor:pointer;
+    background:var(--panel2);
+  }
+  .mode-opt.selected{border-color:var(--accent); box-shadow:0 0 0 1px var(--accent);}
+  .mode-opt h3{margin:0 0 4px; font-size:1rem;}
+  .mode-opt p{margin:0; font-size:.8rem; color:var(--muted); line-height:1.4;}
+  .toggle-row{display:flex; gap:10px; margin-bottom:16px;}
+  .toggle-row .btn.secondary.active{background:var(--accent); color:#fff; border-color:var(--accent);}
+  .player-col{background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:14px;}
+  .player-col h2{margin:0 0 4px; font-size:1.1rem; color:var(--accent);}
+  .score{font-family:var(--font-display); font-size:1.8rem; color:var(--gold);}
+  .deckinfo{font-size:.8rem; color:var(--muted); margin-bottom:10px;}
+  .hand-row{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;}
+  .hand-chip{
+    background:var(--panel2); border:1px solid var(--border); border-radius:6px; padding:5px 8px;
+    font-size:.75rem; display:flex; align-items:center; gap:6px;
+  }
+  .mission-card{
+    border:1px solid var(--border); border-radius:8px; padding:10px 12px; margin-bottom:10px;
+    background:var(--panel2); position:relative;
+  }
+  .mission-card.hidden-card{background:repeating-linear-gradient(45deg,var(--panel2),var(--panel2) 8px,var(--panel) 8px,var(--panel) 16px);}
+  .mission-card.is-defi{outline:2px solid var(--gold);}
+  .mission-card.is-parangon{outline:2px dashed var(--accent);}
+  .mc-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;}
+  .mc-id{font-family:var(--font-display); font-size:.75rem; color:var(--muted);}
+  .mc-name{font-weight:700; font-size:.95rem;}
+  .mc-tags{font-size:.65rem; color:var(--gold); margin-bottom:4px;}
+  .cond-row{display:flex; align-items:center; gap:8px; margin:4px 0; font-size:.8rem;}
+  .cond-row .txt{flex:1; color:var(--text);}
+  .mini{font-size:.7rem; padding:3px 8px; border-radius:5px;}
+  .card-actions{display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;}
+  .panel-note{
+    font-size:.78rem; color:var(--muted); background:var(--panel2); border-left:3px solid var(--accent);
+    padding:8px 10px; border-radius:6px; margin-bottom:12px; line-height:1.45;
+  }
+  details summary{cursor:pointer; font-weight:600; color:var(--accent); margin-bottom:8px;}
+  .selgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:6px; max-height:260px; overflow:auto; padding:8px; border:1px solid var(--border); border-radius:8px; background:var(--panel2);}
+  .selgrid label{font-size:.72rem; display:flex; gap:4px; align-items:flex-start;}
+  .count-pill{font-family:var(--font-display); font-size:.85rem;}
+  .endscreen{text-align:center; padding:40px 10px;}
+  .endscreen .score{font-size:3rem;}
+  footer.hint{text-align:center; color:var(--muted); font-size:.72rem; margin-top:30px;}
+</style>
+</head>
+<body class="theme-gf">
+<div id="app"></div>
+
+<script>
+/* ---------- DONNÉES DES CARTES (texte officiel FR, v3.5.1) ---------- */
+const CARDS = {
+  gf: [
+    ['11','Capturer 1',[["Contrôler l'objectif 1.",1]]],
+    ['12','Capturer 2',[["Contrôler l'objectif 2.",1]]],
+    ['13','Capturer 3',[["Contrôler l'objectif 3.",1]]],
+    ['14','Capturer 4',[["Contrôler l'objectif 4.",1]]],
+    ['15','Capturer 5',[["Contrôler l'objectif 5.",1]]],
+    ['16','Capturer 6',[["Contrôler l'objectif 6.",1]]],
+    ['21','Capturer 1',[["Contrôler l'objectif 1.",1]]],
+    ['22','Capturer 2',[["Contrôler l'objectif 2.",1]]],
+    ['23','Capturer 3',[["Contrôler l'objectif 3.",1]]],
+    ['24','Capturer 4',[["Contrôler l'objectif 4.",1]]],
+    ['25','Capturer 5',[["Contrôler l'objectif 5.",1]]],
+    ['26','Capturer 6',[["Contrôler l'objectif 6.",1]]],
+    ['31','Tenir 1',[["Contrôler l'objectif 1 au début et à la fin du même round.",2]]],
+    ['32','Tenir 2',[["Contrôler l'objectif 2 au début et à la fin du même round.",2]]],
+    ['33','Tenir 3',[["Contrôler l'objectif 3 au début et à la fin du même round.",2]]],
+    ['34','Tenir 4',[["Contrôler l'objectif 4 au début et à la fin du même round.",2]]],
+    ['35','Tenir 5',[["Contrôler l'objectif 5 au début et à la fin du même round.",2]]],
+    ['36','Tenir 6',[["Contrôler l'objectif 6 au début et à la fin du même round.",2]]],
+    ['41',"En avant !",[["N'avoir aucune de ses unités dans sa zone de déploiement.",1]]],
+    ['42','Infiltration',[["Avoir au moins une de ses unités dans la zone de déploiement ennemie.",1],["Avoir au moins trois de ses unités dans la zone de déploiement ennemie.",2]]],
+    ['43','À distance',[["Avoir au moins trois de ses unités dans sa zone de déploiement sans aucune unité ennemie dans sa zone de déploiement. (pas au 1er round)",1]]],
+    ['44','Priorité changeante',[["Lancez 1D6 : le résultat indique l'objectif à contrôler.",1],["Contrôler cet objectif après qu'il a été contrôlé par l'ennemi au début du round.",2]]],
+    ['45','Précision tactique',[["Contrôler trois objectifs, n'importe lesquels.",2]]],
+    ['46','Tactique parfaite',[["Contrôler tous les objectifs.",5]]],
+    ['51','Feu à volonté',[["Détruire une unité ennemie au tir.",1],["Détruire trois unités ennemies ou plus au tir.",2]]],
+    ['52','Dans les tranchées',[["Détruire une unité ennemie en mêlée.",1],["Détruire trois unités ennemies ou plus en mêlée.",2]]],
+    ['53','Leur imposer sa loi',[["Détruire une unité ennemie.",1],["Détruire trois unités ennemies ou plus.",2],["Détruire six unités ennemies ou plus.",5]]],
+    ['54','Surpasser',[['Aucune unité ennemie à 6" ou moins du centre du champ de bataille.',1],['Aucune unité ennemie à 12" ou moins du centre du champ de bataille.',2]]],
+    ['55','Intimidation',[["Une unité ennemie rate un Test de Moral.",1],["Trois unités ennemies ou plus ratent un Test de Moral.",2]]],
+    ['56','Harmonie',[["Réussir à lancer un sort.",1],["Réussir à lancer trois sorts ou plus.",2]]],
+    ['61','Décapitation',[["Détruire le Héros ennemi à la valeur Coriace la plus élevée (ce round ou un round précédent).",2]]],
+    ['62','Purification',[["Détruire une figurine ennemie avec la règle spéciale Lanceur de sort.",1]]],
+    ['63','Abattez-les !',[["Détruire une figurine ennemie avec la règle spéciale Volant.",1]]],
+    ['64','Assassinat',[["Détruire une figurine ennemie avec la règle spéciale Héros.",1],["Détruire trois figurines ennemies ou plus avec la règle spéciale Héros.",2]]],
+    ['65','Tueur de géant',[["Détruire une unité ennemie avec une valeur Coriace (12) ou plus.",1],["Détruire une unité ennemie avec une valeur Coriace (18) ou plus.",2]]],
+    ['66','Aucune pitié',[["Remporter une mêlée avec trois blessures ou plus.",1],["Remporter une mêlée avec six blessures ou plus.",2]]]
+  ],
+  aof: [
+    ['11','Capturer 1',[["Contrôler l'objectif 1.",1]]],
+    ['12','Capturer 2',[["Contrôler l'objectif 2.",1]]],
+    ['13','Capturer 3',[["Contrôler l'objectif 3.",1]]],
+    ['14','Capturer 4',[["Contrôler l'objectif 4.",1]]],
+    ['15','Capturer 5',[["Contrôler l'objectif 5.",1]]],
+    ['16','Capturer 6',[["Contrôler l'objectif 6.",1]]],
+    ['21','Capturer 1',[["Contrôler l'objectif 1.",1]]],
+    ['22','Capturer 2',[["Contrôler l'objectif 2.",1]]],
+    ['23','Capturer 3',[["Contrôler l'objectif 3.",1]]],
+    ['24','Capturer 4',[["Contrôler l'objectif 4.",1]]],
+    ['25','Capturer 5',[["Contrôler l'objectif 5.",1]]],
+    ['26','Capturer 6',[["Contrôler l'objectif 6.",1]]],
+    ['31','Tenir 1',[["Contrôler l'objectif 1 au début et à la fin du même round.",2]]],
+    ['32','Tenir 2',[["Contrôler l'objectif 2 au début et à la fin du même round.",2]]],
+    ['33','Tenir 3',[["Contrôler l'objectif 3 au début et à la fin du même round.",2]]],
+    ['34','Tenir 4',[["Contrôler l'objectif 4 au début et à la fin du même round.",1]]],
+    ['35','Tenir 5',[["Contrôler l'objectif 5 au début et à la fin du même round.",1]]],
+    ['36','Tenir 6',[["Contrôler l'objectif 6 au début et à la fin du même round.",1]]],
+    ['41',"En avant !",[["N'avoir aucune de ses unités dans sa zone de déploiement.",1]]],
+    ['42','Traversée',[["Avoir au moins une de ses unités dans la zone de déploiement ennemie.",1],["Avoir au moins trois de ses unités dans la zone de déploiement ennemie.",2]]],
+    ['43','Tenez la ligne !',[["Avoir au moins trois de ses unités dans sa zone de déploiement sans aucune unité ennemie dans sa zone de déploiement. (pas au 1er round)",1]]],
+    ['44','Stratégie changeante',[["Lancez 1D6 : le résultat indique l'objectif à contrôler.",1],["Contrôler cet objectif après qu'il a été contrôlé par l'ennemi au début du round.",2]]],
+    ['45','Aire de domination',[["Contrôler trois objectifs, n'importe lesquels.",2]]],
+    ['46','Domination totale',[["Contrôler tous les objectifs.",5]]],
+    ['51','Tir de volée',[["Détruire une unité ennemie au tir.",1],["Détruire trois unités ou plus au tir.",2]]],
+    ['52','Charge',[["Détruire une unité ennemie en mêlée.",1],["Détruire trois unités ou plus en mêlée.",2]]],
+    ['53','Abattez-les !',[["Détruire une unité ennemie.",1],["Détruire trois unités ennemies ou plus.",2],["Détruire six unités ennemies ou plus.",5]]],
+    ['54','Débordement',[['Aucune unité ennemie à 6" ou moins du centre du champ de bataille.',1],['Aucune unité ennemie à 12" ou moins du centre du champ de bataille.',2]]],
+    ['55','Terrifiant',[["Une unité ennemie rate un Test de Moral.",1],["Trois unités ennemies ou plus ratent un Test de Moral.",2]]],
+    ['56','Canalisation arcanique',[["Réussir à lancer un sort.",1],["Réussir à lancer trois sorts ou plus.",2]]],
+    ['61','Tuer le roi',[["Détruire le Héros ennemi à la valeur Coriace la plus élevée (ce round ou un round précédent).",2]]],
+    ['62','Briseur de sorts',[["Détruire une figurine ennemie avec la règle spéciale Lanceur de sort.",1]]],
+    ['63','Purifier les cieux',[["Détruire une figurine ennemie avec la règle spéciale Volant.",1]]],
+    ['64','Bourreau',[["Détruire une figurine ennemie avec la règle spéciale Héros.",1],["Détruire trois figurines ennemies ou plus avec la règle spéciale Héros.",2]]],
+    ['65','Chasseur de monstres',[["Détruire une unité ennemie avec une valeur Coriace (12) ou plus.",1],["Détruire une unité ennemie avec une valeur Coriace (18) ou plus.",2]]],
+    ['66','Pas de prisonniers',[["Remporter une mêlée avec trois blessures ou plus.",1],["Remporter une mêlée avec six blessures ou plus.",2]]]
+  ]
+}; // -> objets {id,name,conditions}
+for(const g in CARDS){ CARDS[g] = CARDS[g].map(([id,name,conditions])=>({id,name,conditions})); }
+
+const MODES = [
+  {id:'tacticien', name:'Bataille de tacticien', deckType:'personal-36', tableTarget:3,
+    desc:"Chaque joueur a son propre paquet de 36 cartes. Piochez jusqu'à avoir 3 cartes visibles sur la table. Marquez la condition remplie qui rapporte le plus de PV, défaussez la carte, puis défaussez-en une autre si vous le souhaitez."},
+  {id:'domination', name:'Domination totale', deckType:'shared-36', tableTarget:3,
+    desc:"Les deux joueurs partagent le même paquet de 36 cartes et la même table (jusqu'à 3 cartes). Même règles de score, mais c'est une course : le premier à remplir une condition la marque."},
+  {id:'defi', name:'Défi direct', deckType:'personal-18', handTarget:5, tableTarget:3, hasHidden:true, special:'defi',
+    desc:"Paquets personnels de 18 cartes. En début de round, chaque joueur choisit une carte adverse comme carte « Défi » : si elle est remplie, +1 PV bonus pour celui qui l'a désignée."},
+  {id:'ruse', name:'Ruse stratégique', deckType:'personal-18', handTarget:5, tableTarget:3, hasHidden:true, special:'ruse',
+    desc:"Après le round 1 : le joueur en tête au score doit révéler toutes ses cartes cachées ; celui en retard peut en cacher une des siennes."},
+  {id:'stratageme', name:'Stratagème planifié', deckType:'personal-18', handTarget:5, tableTarget:3, hasHidden:true, special:'swap',
+    desc:"En début de round, chaque joueur peut renvoyer une carte adverse en main ; l'adversaire doit alors la remplacer par une autre carte de sa main."},
+  {id:'recuperation', name:'Récupération de coordonnées', deckType:'personal-18', handTarget:5, tableTarget:3, hasHidden:true, special:'recover',
+    desc:"En fin de round, après avoir marqué et défaussé, chaque joueur peut reprendre jusqu'à 2 cartes de sa défausse et les remettre dans son paquet."},
+  {id:'suprematie', name:'Suprématie logistique', deckType:'personal-18', handTarget:5, tableTarget:3, hasHidden:true, special:'supremacy',
+    desc:"Si un joueur contrôle plus d'objectifs que son adversaire, il peut piocher jusqu'à 6 cartes en main au lieu de 5 (à activer manuellement ci-dessous)."},
+  {id:'parangons', name:'Parangons tactiques', deckType:'personal-18', handTarget:5, tableTarget:3, hasHidden:true, special:'parangon',
+    desc:"Chaque joueur peut désigner une de ses cartes « Parangon » : elle ne peut être marquée que par une unité contenant un Héros, et rapporte +1 PV bonus. (règle honorée manuellement)"}
+];
+
+/* ---------- ÉTAT ---------- */
+let state = null;
+
+function freshState(){
+  return {
+    step:'setup', game:'gf', modeId:'tacticien',
+    round:1, maxRounds:4, finished:false,
+    players:[
+      {name:'Joueur 1', deck:[], hand:[], table:[], discard:[], score:0, handBonus:false, recoveredThisRound:0, redistributed:false, discardsThisRound:0},
+      {name:'Joueur 2', deck:[], hand:[], table:[], discard:[], score:0, handBonus:false, recoveredThisRound:0, redistributed:false, discardsThisRound:0}
+    ],
+    sharedDeck:[], sharedTable:[], sharedDiscard:[],
+    deckChoice:[[],[]] // ids sélectionnés manuellement pour modes 18 cartes
+  };
+}
+state = freshState();
+
+function mode(){ return MODES.find(m=>m.id===state.modeId); }
+function uid(){ return Math.random().toString(36).slice(2,9); }
+function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+
+function makeCards(ids){
+  const src = CARDS[state.game];
+  return ids.map(id=>{
+    const c = src.find(x=>x.id===id);
+    return {uid:uid(), id:c.id, name:c.name, conditions:c.conditions, hidden:false, defiBy:null, parangon:false};
+  });
+}
+
+/* ---------- ACTIONS SETUP ---------- */
+function setGame(g){ state.game=g; render(); }
+function setMode(id){ state.modeId=id; render(); }
+
+function goToDeckStep(){
+  const m = mode();
+  if(m.deckType==='personal-18'){
+    const allIds = CARDS[state.game].map(c=>c.id);
+    state.deckChoice = [shuffle(allIds.slice()).slice(0,18).sort(), shuffle(allIds.slice()).slice(0,18).sort()];
+    state.step='decks';
+  } else {
+    startGame();
+  }
+  render();
+}
+
+function randomizeChoice(pIdx){
+  const allIds = CARDS[state.game].map(c=>c.id);
+  state.deckChoice[pIdx] = shuffle(allIds.slice()).slice(0,18).sort();
+  render();
+}
+function toggleChoice(pIdx, id){
+  const arr = state.deckChoice[pIdx];
+  const i = arr.indexOf(id);
+  if(i>=0){ arr.splice(i,1); } else { if(arr.length>=18) return; arr.push(id); }
+  render();
+}
+
+function startGame(){
+  const m = mode();
+  const allIds = CARDS[state.game].map(c=>c.id);
+  if(m.deckType==='personal-36'){
+    state.players.forEach(p=>{ p.deck = shuffle(makeCards(allIds)); });
+  } else if(m.deckType==='shared-36'){
+    state.sharedDeck = shuffle(makeCards(allIds));
+  } else {
+    state.players.forEach((p,i)=>{ p.deck = shuffle(makeCards(state.deckChoice[i])); });
+  }
+  state.step='play';
+  render();
+}
+
+/* ---------- ACTIONS DE JEU ---------- */
+// Pioche en évitant qu'un joueur se retrouve avec deux cartes de même nom (même mission)
+// actives en même temps (main + table). Les doublons piochés sont remis dans le paquet.
+function drawUnique(deck, activeNames, needed){
+  const drawn = [];
+  let attempts = deck.length;
+  while(drawn.length < needed && deck.length > 0 && attempts > 0){
+    const card = deck.pop();
+    attempts--;
+    if(activeNames.has(card.name) || drawn.some(d=>d.name===card.name)){
+      deck.unshift(card);
+      continue;
+    }
+    drawn.push(card);
+    activeNames.add(card.name);
+  }
+  return drawn;
+}
+function drawTable36(pIdx){
+  const p = state.players[pIdx];
+  const activeNames = new Set(p.table.map(c=>c.name));
+  const needed = mode().tableTarget - p.table.length;
+  p.table.push(...drawUnique(p.deck, activeNames, needed));
+  render();
+}
+function drawSharedTable(){
+  const activeNames = new Set(state.sharedTable.map(c=>c.name));
+  const needed = mode().tableTarget - state.sharedTable.length;
+  state.sharedTable.push(...drawUnique(state.sharedDeck, activeNames, needed));
+  render();
+}
+function drawHand(pIdx){
+  const p = state.players[pIdx];
+  const target = p.handBonus ? 6 : mode().handTarget;
+  const activeNames = new Set([...p.hand, ...p.table].map(c=>c.name));
+  const needed = target - p.hand.length;
+  p.hand.push(...drawUnique(p.deck, activeNames, needed));
+  render();
+}
+function playToTable(pIdx, cardUid, hidden){
+  const p = state.players[pIdx];
+  if(p.table.length >= mode().tableTarget) return;
+  const idx = p.hand.findIndex(c=>c.uid===cardUid);
+  if(idx<0) return;
+  const card = p.hand[idx];
+  if(hidden && p.table.some(c=>c.hidden)){ alert("Une carte cachée est déjà présente sur la table de ce joueur."); return; }
+  p.hand.splice(idx,1);
+  card.hidden = !!hidden;
+  p.table.push(card);
+  render();
+}
+function unhide(pIdx, cardUid){
+  const p = state.players[pIdx];
+  const c = p.table.find(c=>c.uid===cardUid);
+  if(c) c.hidden=false;
+  render();
+}
+
+function scoreCard(loc, pIdx, cardUid, pv, scorerIdx){
+  let arr = (loc==='shared') ? state.sharedTable : state.players[pIdx].table;
+  const idx = arr.findIndex(c=>c.uid===cardUid);
+  if(idx<0) return;
+  const card = arr[idx];
+  arr.splice(idx,1);
+  let total = pv;
+  let note = '';
+  if(card.parangon){ total += 1; note += ' (+1 PV Parangon)'; }
+  state.players[scorerIdx].score += total;
+  state.players[scorerIdx].discard.push(card);
+  if(card.defiBy!=null && card.defiBy!==scorerIdx){
+    state.players[card.defiBy].score += 1;
+    alert(card.name+' remplie : +'+total+note+' PV pour '+state.players[scorerIdx].name+', et +1 PV Défi pour '+state.players[card.defiBy].name+'.');
+  }
+  render();
+}
+
+function discardVoluntary(loc, zonePIdx, cardUid, actorIdx){
+  const actor = state.players[actorIdx];
+  if((actor.discardsThisRound||0) >= 1){ alert(actor.name+" a déjà utilisé sa défausse volontaire pour ce round."); return; }
+  let arr = (loc==='shared') ? state.sharedTable : state.players[zonePIdx].table;
+  const idx = arr.findIndex(c=>c.uid===cardUid);
+  if(idx<0) return;
+  const card = arr[idx];
+  arr.splice(idx,1);
+  if(loc==='shared'){ state.sharedDiscard.push(card); }
+  else { state.players[zonePIdx].discard.push(card); }
+  actor.discardsThisRound = (actor.discardsThisRound||0) + 1;
+  render();
+}
+
+function declareDefi(challengerIdx, cardUid){
+  const oppIdx = challengerIdx===0?1:0;
+  const p = state.players[oppIdx];
+  const card = p.table.find(c=>c.uid===cardUid) || p.hand.find(c=>c.uid===cardUid);
+  if(!card){ alert("Carte adverse introuvable."); return; }
+  card.defiBy = challengerIdx;
+  render();
+}
+function designateParangon(pIdx, cardUid){
+  const p = state.players[pIdx];
+  [...p.table, ...p.hand].forEach(c=>c.parangon=false);
+  const card = p.table.find(c=>c.uid===cardUid) || p.hand.find(c=>c.uid===cardUid);
+  if(card) card.parangon = true;
+  render();
+}
+function swapBack(ownerIdx, cardUid){
+  const p = state.players[ownerIdx];
+  const idx = p.table.findIndex(c=>c.uid===cardUid);
+  if(idx<0) return;
+  const [card] = p.table.splice(idx,1);
+  card.hidden=false;
+  p.hand.push(card);
+  render();
+}
+function recoverFromDiscard(pIdx, cardUid){
+  const p = state.players[pIdx];
+  if((p.recoveredThisRound||0) >= 2){ alert("Maximum 2 cartes récupérées par round."); return; }
+  const idx = p.discard.findIndex(c=>c.uid===cardUid);
+  if(idx<0) return;
+  const [card] = p.discard.splice(idx,1);
+  card.hidden=false; card.defiBy=null; card.parangon=false;
+  p.deck.push(card); shuffle(p.deck);
+  p.recoveredThisRound = (p.recoveredThisRound||0)+1;
+  render();
+}
+function toggleSupremacy(pIdx){ state.players[pIdx].handBonus = !state.players[pIdx].handBonus; render(); }
+
+function applyRuse(){
+  const [p0,p1] = state.players;
+  if(p0.score===p1.score){ alert("Égalité au score : pas d'effet de Ruse stratégique."); return; }
+  const leader = p0.score>p1.score ? p0 : p1;
+  leader.table.forEach(c=>c.hidden=false);
+  alert("Cartes cachées de "+leader.name+" révélées. L'autre joueur peut désormais cacher une de ses cartes (bouton « cacher » sur sa carte).");
+  render();
+}
+function hideExisting(pIdx, cardUid){
+  const p = state.players[pIdx];
+  if(p.table.some(c=>c.hidden)){ alert("Ce joueur a déjà une carte cachée."); return; }
+  const c = p.table.find(c=>c.uid===cardUid);
+  if(c) c.hidden=true;
+  render();
+}
+
+function redistribute(pIdx){
+  const p = state.players[pIdx];
+  if(state.round!==1 || p.redistributed) return;
+  p.deck.push(...p.hand);
+  p.hand=[];
+  shuffle(p.deck);
+  const activeNames = new Set(p.table.map(c=>c.name));
+  p.hand.push(...drawUnique(p.deck, activeNames, 4));
+  p.redistributed = true;
+  render();
+}
+
+function endRound(){
+  if(state.round < state.maxRounds){
+    state.round++;
+    state.players.forEach(p=>{ p.recoveredThisRound=0; p.discardsThisRound=0; });
+  } else {
+    state.finished = true;
+  }
+  render();
+}
+function resetGame(){ if(confirm('Recommencer depuis le début ?')){ state = freshState(); render(); } }
+
+/* ---------- RENDU ---------- */
+function esc(s){ return s; }
+
+function renderCondRow(cond, actions){
+  return `<div class="cond-row"><span class="mini badge">${cond[1]} PV</span><span class="txt">${cond[0]}</span>${actions}</div>`;
+}
+
+function renderMissionCard(card, opts){
+  // opts: {loc, pIdx, scorerButtons:[{label,idx}], showDefi, showParangon, showHide, showSwap, showRecover}
+  const tags = [];
+  if(card.hidden) tags.push('face cachée');
+  if(card.defiBy!=null) tags.push('Défi de '+state.players[card.defiBy].name);
+  if(card.parangon) tags.push('Parangon (+1 PV)');
+  const condRows = card.conditions.map(cond=>{
+    let btns = '';
+    if(opts.scorerButtons){
+      btns = opts.scorerButtons.map(b=>`<button class="btn small" onclick="scoreCard('${opts.loc}',${opts.pIdx},'${card.uid}',${cond[1]},${b.idx})">${b.label}</button>`).join('');
+    }
+    return renderCondRow(cond, btns);
+  }).join('');
+  let actions = opts.discardButtons.map(b=>{
+    const used = (state.players[b.idx].discardsThisRound||0) >= 1;
+    return `<button class="btn secondary small" ${used?'disabled title="Défausse déjà utilisée ce round"':''} onclick="discardVoluntary('${opts.loc}',${opts.pIdx===null||opts.pIdx===undefined?'null':opts.pIdx},'${card.uid}',${b.idx})">${b.label}</button>`;
+  }).join('');
+  if(opts.showHide) actions += `<button class="btn ghost small" onclick="hideExisting(${opts.pIdx},'${card.uid}')">Cacher</button>`;
+  if(card.hidden) actions += `<button class="btn ghost small" onclick="unhide(${opts.pIdx},'${card.uid}')">Révéler</button>`;
+  if(opts.showDefi!=null) actions += `<button class="btn ghost small" onclick="declareDefi(${opts.showDefi},'${card.uid}')">Défi</button>`;
+  if(opts.showParangon) actions += `<button class="btn ghost small" onclick="designateParangon(${opts.pIdx},'${card.uid}')">Parangon</button>`;
+  if(opts.showSwap) actions += `<button class="btn ghost small" onclick="swapBack(${opts.pIdx},'${card.uid}')">Renvoyer en main (adverse)</button>`;
+  return `<div class="mission-card ${card.hidden?'hidden-card':''} ${card.defiBy!=null?'is-defi':''} ${card.parangon?'is-parangon':''}">
+    <div class="mc-head"><span class="mc-name">${card.hidden?'??? (carte cachée)':card.name}</span><span class="mc-id">#${card.id}</span></div>
+    ${tags.length?`<div class="mc-tags">${tags.join(' · ')}</div>`:''}
+    ${card.hidden? '<div class="txt" style="font-size:.75rem;color:var(--muted);">Contenu masqué jusqu\'à révélation.</div>' : condRows}
+    <div class="card-actions">${actions}</div>
+  </div>`;
+}
+
+function render(){
+  const app = document.getElementById('app');
+  document.body.className = 'theme-'+state.game;
+
+  if(state.step==='setup'){
+    app.innerHTML = `
+      <div class="topbar"><h1>Cartes de missions v3.5.1</h1><span class="badge">Configuration</span></div>
+      <div class="card-block">
+        <h3 style="margin-top:0;">1. Choisis le jeu</h3>
+        <div class="toggle-row">
+          <button class="btn secondary ${state.game==='gf'?'active':''}" onclick="setGame('gf')">Grimdark Future</button>
+          <button class="btn secondary ${state.game==='aof'?'active':''}" onclick="setGame('aof')">Age of Fantasy</button>
+        </div>
+        <h3>2. Choisis le mode de jeu</h3>
+        <h4 style="margin:14px 0 6px; color:var(--muted); font-family:'Inter',sans-serif; font-size:.8rem; text-transform:uppercase; letter-spacing:.08em;">Jeu de cartes classique — paquet complet de 36 cartes</h4>
+        <div class="mode-list">
+          ${MODES.filter(m=>m.deckType!=='personal-18').map(m=>`<div class="mode-opt ${state.modeId===m.id?'selected':''}" onclick="setMode('${m.id}')">
+            <h3>${m.name}</h3><p>${m.desc}</p>
+          </div>`).join('')}
+        </div>
+        <h4 style="margin:18px 0 6px; color:var(--muted); font-family:'Inter',sans-serif; font-size:.8rem; text-transform:uppercase; letter-spacing:.08em;">Jeu de cartes personnalisé — paquet de 18 cartes par joueur</h4>
+        <div class="mode-list">
+          ${MODES.filter(m=>m.deckType==='personal-18').map(m=>`<div class="mode-opt ${state.modeId===m.id?'selected':''}" onclick="setMode('${m.id}')">
+            <h3>${m.name}</h3><p>${m.desc}</p>
+          </div>`).join('')}
+        </div>
+      </div>
+      <button class="btn" onclick="goToDeckStep()">Continuer →</button>
+      <footer class="hint">Basé sur les PDF officiels "Cartes de missions v3.5.1" (One Page Rules, Gaetano Ferrara).</footer>
+    `;
+    return;
+  }
+
+  if(state.step==='decks'){
+    const allIds = CARDS[state.game].map(c=>c.id);
+    const src = CARDS[state.game];
+    app.innerHTML = `
+      <div class="topbar"><h1>Constitution des paquets (18 cartes)</h1><span class="badge">${mode().name}</span></div>
+      <p class="panel-note">Chaque joueur choisit 18 cartes parmi les 36, indépendamment. Utilise « Aléatoire » pour aller vite.</p>
+      <div class="grid2">
+        ${[0,1].map(pIdx=>`
+          <div class="card-block">
+            <h3 style="margin-top:0;">${state.players[pIdx].name} — <span class="count-pill">${state.deckChoice[pIdx].length}/18</span></h3>
+            <button class="btn secondary small" onclick="randomizeChoice(${pIdx})">🎲 Aléatoire</button>
+            <div class="selgrid" style="margin-top:10px;">
+              ${allIds.map(id=>{
+                const c = src.find(x=>x.id===id);
+                const checked = state.deckChoice[pIdx].includes(id) ? 'checked' : '';
+                return `<label><input type="checkbox" ${checked} onchange="toggleChoice(${pIdx},'${id}')"> #${id} ${c.name}</label>`;
+              }).join('')}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="toggle-row" style="margin-top:14px;">
+        <button class="btn secondary" onclick="state.step='setup';render();">← Retour</button>
+        <button class="btn" ${(state.deckChoice[0].length!==18||state.deckChoice[1].length!==18)?'disabled':''} onclick="startGame()">Commencer la partie</button>
+      </div>
+    `;
+    return;
+  }
+
+  if(state.step==='play'){
+    const m = mode();
+    if(state.finished){
+      const [p0,p1] = state.players;
+      const winner = p0.score===p1.score ? "Égalité !" : (p0.score>p1.score? p0.name+' remporte la partie !' : p1.name+' remporte la partie !');
+      app.innerHTML = `
+        <div class="topbar"><h1>Partie terminée</h1><span class="badge">${state.game.toUpperCase()} · ${m.name}</span></div>
+        <div class="endscreen card-block">
+          <h2>${winner}</h2>
+          <div class="grid2">
+            <div><div>${p0.name}</div><div class="score">${p0.score} PV</div></div>
+            <div><div>${p1.name}</div><div class="score">${p1.score} PV</div></div>
+          </div>
+        </div>
+        <button class="btn" onclick="resetGame()">Nouvelle partie</button>
+      `;
+      return;
+    }
+
+    const reminder = `<details class="card-block"><summary>Rappel des règles — ${m.name}</summary><p class="panel-note" style="margin-bottom:0;">${m.desc}</p></details>`;
+
+    let boardHtml = '';
+    if(m.deckType==='shared-36'){
+      const scorerButtons = [{label:'→ '+state.players[0].name, idx:0},{label:'→ '+state.players[1].name, idx:1}];
+      const discardButtons = [{label:'Défausser (J1)', idx:0},{label:'Défausser (J2)', idx:1}];
+      boardHtml = `
+        <div class="card-block">
+          <h3 style="margin-top:0;">Paquet partagé — ${state.sharedDeck.length} carte(s) restante(s)</h3>
+          <button class="btn" onclick="drawSharedTable()" ${state.sharedTable.length>=m.tableTarget?'disabled':''}>Piocher (jusqu'à ${m.tableTarget})</button>
+          <div class="deckinfo">Défausse volontaire — ${state.players.map(p=>p.name+': '+((p.discardsThisRound||0)>=1?'utilisée':'disponible')).join(' · ')}</div>
+          <div style="margin-top:12px;">
+            ${state.sharedTable.length? state.sharedTable.map(c=>renderMissionCard(c,{loc:'shared',pIdx:null,scorerButtons,discardButtons})).join('') : '<p class="panel-note">Aucune carte sur la table.</p>'}
+          </div>
+        </div>
+      `;
+    } else if(m.deckType==='personal-36'){
+      boardHtml = `<div class="grid2">
+        ${[0,1].map(pIdx=>{
+          const p = state.players[pIdx];
+          const scorerButtons = [{label:'Marquer', idx:pIdx}];
+          const discardButtons = [{label:'Défausser', idx:pIdx}];
+          return `<div class="player-col">
+            <h2>${p.name}</h2>
+            <div class="score">${p.score} PV</div>
+            <div class="deckinfo">Paquet : ${p.deck.length} carte(s) · Défausse : ${p.discard.length}</div>
+            <div class="deckinfo">Défausse volontaire : ${(p.discardsThisRound||0)>=1?'utilisée':'disponible'}</div>
+            <button class="btn" onclick="drawTable36(${pIdx})" ${p.table.length>=m.tableTarget?'disabled':''}>Piocher (jusqu'à ${m.tableTarget})</button>
+            <div style="margin-top:10px;">
+              ${p.table.length? p.table.map(c=>renderMissionCard(c,{loc:'table',pIdx,scorerButtons,discardButtons})).join('') : '<p class="panel-note">Aucune carte sur la table.</p>'}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`;
+    } else {
+      // personal-18
+      boardHtml = `<div class="grid2">
+        ${[0,1].map(pIdx=>{
+          const p = state.players[pIdx];
+          const oppIdx = pIdx===0?1:0;
+          const scorerButtons = [{label:'Marquer', idx:pIdx}];
+          const discardButtons = [{label:'Défausser', idx:pIdx}];
+          const specialBits = [];
+          if(m.special==='defi') specialBits.push(`<span style="font-size:.72rem;color:var(--muted);">Clique « Défi » sur une carte adverse pour la désigner.</span>`);
+          if(m.special==='supremacy') specialBits.push(`<button class="btn ghost small" onclick="toggleSupremacy(${pIdx})">${p.handBonus?'✓ ':''}Bonus pioche (contrôle plus d'objectifs)</button>`);
+          if(m.special==='recover') specialBits.push(`<span style="font-size:.72rem;color:var(--muted);">Récupérées ce round : ${p.recoveredThisRound||0}/2</span>`);
+          if(m.special==='ruse' && pIdx===0) specialBits.push(`<button class="btn ghost small" onclick="applyRuse()">Appliquer Ruse stratégique</button>`);
+          return `<div class="player-col">
+            <h2>${p.name}</h2>
+            <div class="score">${p.score} PV</div>
+            <div class="deckinfo">Paquet : ${p.deck.length} carte(s) · Défausse : ${p.discard.length}</div>
+            <div class="deckinfo">Défausse volontaire : ${(p.discardsThisRound||0)>=1?'utilisée':'disponible'}</div>
+            <div class="card-actions" style="margin-bottom:8px;">${specialBits.join('')}</div>
+            <button class="btn" onclick="drawHand(${pIdx})" ${p.hand.length>=(p.handBonus?6:m.handTarget)?'disabled':''}>Piocher en main (jusqu'à ${p.handBonus?6:m.handTarget})</button>
+            ${state.round===1 && !p.redistributed && p.hand.length>0 && p.table.length===0 ? `<button class="btn ghost small" onclick="redistribute(${pIdx})">Redistribution (round 1)</button>` : ''}
+            <h3 style="font-size:.85rem;margin:10px 0 4px;">Main (${p.hand.length})</h3>
+            <div class="hand-row">
+              ${p.hand.length? p.hand.map(c=>`
+                <div class="hand-chip">
+                  #${c.id} ${c.name}
+                  <button class="btn small" onclick="playToTable(${pIdx},'${c.uid}',false)" ${p.table.length>=m.tableTarget?'disabled':''}>Jouer</button>
+                  ${m.hasHidden? `<button class="btn ghost small" onclick="playToTable(${pIdx},'${c.uid}',true)" ${p.table.length>=m.tableTarget?'disabled':''}>Jouer caché</button>`:''}
+                </div>`).join('') : '<span class="panel-note" style="padding:6px 10px;">Main vide.</span>'}
+            </div>
+            <h3 style="font-size:.85rem;margin:10px 0 4px;">Table (${p.table.length}/${m.tableTarget})</h3>
+            ${p.table.length? p.table.map(c=>renderMissionCard(c,{
+              loc:'table', pIdx, scorerButtons, discardButtons,
+              showDefi: (m.special==='defi' && c.defiBy==null) ? oppIdx : null,
+              showParangon: m.special==='parangon',
+              showSwap: m.special==='swap',
+              showHide: m.hasHidden && !c.hidden && !p.table.some(x=>x.hidden)
+            })).join('') : '<p class="panel-note">Aucune carte sur la table.</p>'}
+            ${p.discard.length && m.special==='recover' ? `
+              <h3 style="font-size:.85rem;margin:10px 0 4px;">Défausse (récupération)</h3>
+              <div class="hand-row">${p.discard.map(c=>`<div class="hand-chip">#${c.id} ${c.name}<button class="btn small" onclick="recoverFromDiscard(${pIdx},'${c.uid}')">Récupérer</button></div>`).join('')}</div>
+            ` : ''}
+          </div>`;
+        }).join('')}
+      </div>`;
+      // bouton défi séparé car il cible la carte adverse : on l'ajoute sous forme d'aide, les boutons "Défi" sont générés dans renderMissionCard via showDefi si on passe l'idx du challenger (l'autre joueur)
+    }
+
+    app.innerHTML = `
+      <div class="topbar">
+        <h1>${state.game==='gf'?'Grimdark Future':'Age of Fantasy'} — ${m.name}</h1>
+        <div class="toggle-row" style="margin:0;">
+          <span class="badge">${m.deckType==='personal-18' ? 'Personnalisé (18 cartes)' : 'Classique (36 cartes)'}</span>
+          <span class="badge">Round ${state.round}/${state.maxRounds}</span>
+          <button class="btn secondary small" onclick="resetGame()">Recommencer</button>
+        </div>
+      </div>
+      ${reminder}
+      ${boardHtml}
+      <div class="toggle-row" style="margin-top:16px; justify-content:flex-end;">
+        <button class="btn" onclick="endRound()">${state.round<state.maxRounds? 'Fin du round '+state.round+' →' : 'Terminer la partie'}</button>
+      </div>
+    `;
+    return;
+  }
+}
+
+render();
+</script>
+</body>
+</html>
