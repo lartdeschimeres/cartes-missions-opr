@@ -211,7 +211,7 @@ let state = null;
 function freshState(){
   return {
     step:'setup', game:'gf', modeId:'tacticien',
-    round:1, maxRounds:4, finished:false,
+    round:1, maxRounds:4, finished:false, endPhase:false,
     players:[
       {name:'Joueur 1', deck:[], hand:[], table:[], discard:[], score:0, handBonus:false, recoveredThisRound:0, redistributed:false, discardsThisRound:0, filledThisRound:false, drawStuck:false},
       {name:'Joueur 2', deck:[], hand:[], table:[], discard:[], score:0, handBonus:false, recoveredThisRound:0, redistributed:false, discardsThisRound:0, filledThisRound:false, drawStuck:false}
@@ -359,6 +359,7 @@ function scoreCard(loc, pIdx, cardUid, pv, scorerIdx){
 }
 
 function discardVoluntary(loc, zonePIdx, cardUid, actorIdx){
+  if(!state.endPhase){ alert("La défausse volontaire n'est possible qu'en fin de round, après avoir marqué les points."); return; }
   const actor = state.players[actorIdx];
   if((actor.discardsThisRound||0) >= 1){ alert(actor.name+" a déjà utilisé sa défausse volontaire pour ce round."); return; }
   let arr = (loc==='shared') ? state.sharedTable : state.players[zonePIdx].table;
@@ -461,10 +462,16 @@ function roundBlockers(){
   }
   return out;
 }
-function endRound(){
+function startEndPhase(){
   updateFilled();
   const blockers = roundBlockers();
   if(blockers.length){ alert("Impossible de terminer le round : il manque des cartes pour "+blockers.join(', ')+"."); return; }
+  state.endPhase = true;
+  render();
+}
+function endRound(){
+  if(!state.endPhase) return;
+  state.endPhase = false;
   if(state.round < state.maxRounds){
     state.round++;
     state.players.forEach(p=>{ p.recoveredThisRound=0; p.discardsThisRound=0; p.filledThisRound=false; p.drawStuck=false; });
@@ -498,7 +505,8 @@ function renderMissionCard(card, opts){
   }).join('');
   let actions = opts.discardButtons.map(b=>{
     const used = (state.players[b.idx].discardsThisRound||0) >= 1;
-    return `<button class="btn secondary small" ${used?'disabled title="Défausse déjà utilisée ce round"':''} onclick="discardVoluntary('${opts.loc}',${opts.pIdx===null||opts.pIdx===undefined?'null':opts.pIdx},'${card.uid}',${b.idx})">${b.label}</button>`;
+    const locked = !state.endPhase;
+    return `<button class="btn secondary small" ${used?'disabled title="Défausse déjà utilisée ce round"':(locked?'disabled title="Disponible uniquement en fin de round"':'')} onclick="discardVoluntary('${opts.loc}',${opts.pIdx===null||opts.pIdx===undefined?'null':opts.pIdx},'${card.uid}',${b.idx})">${b.label}</button>`;
   }).join('');
   if(opts.showHide) actions += `<button class="btn ghost small" onclick="hideExisting(${opts.pIdx},'${card.uid}')">Cacher</button>`;
   if(card.hidden) actions += `<button class="btn ghost small" onclick="unhide(${opts.pIdx},'${card.uid}')">Révéler</button>`;
@@ -688,9 +696,12 @@ function render(){
       </div>
       ${reminder}
       ${boardHtml}
+      ${state.endPhase ? `<p class="panel-note" style="margin-top:16px;">Fin de round : marquez vos points, puis chaque joueur peut défausser <b>une</b> carte restante avant de passer au round suivant.</p>` : ''}
       <div class="toggle-row" style="margin-top:16px; justify-content:flex-end; align-items:center;">
-        ${roundBlockers().length ? `<span class="deckinfo" style="margin:0;">À compléter avant de continuer : ${roundBlockers().join(', ')}</span>` : ''}
-        <button class="btn" ${roundBlockers().length?'disabled':''} onclick="endRound()">${state.round<state.maxRounds? 'Fin du round '+state.round+' →' : 'Terminer la partie'}</button>
+        ${(!state.endPhase && roundBlockers().length) ? `<span class="deckinfo" style="margin:0;">À compléter avant de continuer : ${roundBlockers().join(', ')}</span>` : ''}
+        ${state.endPhase
+          ? `<button class="btn" onclick="endRound()">${state.round<state.maxRounds? 'Round '+(state.round+1)+' →' : 'Terminer la partie'}</button>`
+          : `<button class="btn" ${roundBlockers().length?'disabled':''} onclick="startEndPhase()">Fin du round ${state.round} : marquage et défausse</button>`}
       </div>
     `;
     return;
