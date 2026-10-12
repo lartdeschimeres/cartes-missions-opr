@@ -213,10 +213,10 @@ function freshState(){
     step:'setup', game:'gf', modeId:'tacticien',
     round:1, maxRounds:4, finished:false,
     players:[
-      {name:'Joueur 1', deck:[], hand:[], table:[], discard:[], score:0, handBonus:false, recoveredThisRound:0, redistributed:false, discardsThisRound:0},
-      {name:'Joueur 2', deck:[], hand:[], table:[], discard:[], score:0, handBonus:false, recoveredThisRound:0, redistributed:false, discardsThisRound:0}
+      {name:'Joueur 1', deck:[], hand:[], table:[], discard:[], score:0, handBonus:false, recoveredThisRound:0, redistributed:false, discardsThisRound:0, filledThisRound:false, drawStuck:false},
+      {name:'Joueur 2', deck:[], hand:[], table:[], discard:[], score:0, handBonus:false, recoveredThisRound:0, redistributed:false, discardsThisRound:0, filledThisRound:false, drawStuck:false}
     ],
-    sharedDeck:[], sharedTable:[], sharedDiscard:[],
+    sharedDeck:[], sharedTable:[], sharedDiscard:[], sharedFilled:false, sharedStuck:false,
     deckChoice:[[],[]] // ids sélectionnés manuellement pour modes 18 cartes
   };
 }
@@ -298,13 +298,17 @@ function drawTable36(pIdx){
   const p = state.players[pIdx];
   const activeNames = new Set(p.table.map(c=>c.name));
   const needed = mode().tableTarget - p.table.length;
-  p.table.push(...drawUnique(p.deck, activeNames, needed));
+  const drawn = drawUnique(p.deck, activeNames, needed);
+  p.table.push(...drawn);
+  if(drawn.length < needed) p.drawStuck = true;
   render();
 }
 function drawSharedTable(){
   const activeNames = new Set(state.sharedTable.map(c=>c.name));
   const needed = mode().tableTarget - state.sharedTable.length;
-  state.sharedTable.push(...drawUnique(state.sharedDeck, activeNames, needed));
+  const drawn = drawUnique(state.sharedDeck, activeNames, needed);
+  state.sharedTable.push(...drawn);
+  if(drawn.length < needed) state.sharedStuck = true;
   render();
 }
 function drawHand(pIdx){
@@ -312,7 +316,9 @@ function drawHand(pIdx){
   const target = p.handBonus ? 6 : mode().handTarget;
   const activeNames = new Set([...p.hand, ...p.table].map(c=>c.name));
   const needed = target - p.hand.length;
-  p.hand.push(...drawUnique(p.deck, activeNames, needed));
+  const drawn = drawUnique(p.deck, activeNames, needed);
+  p.hand.push(...drawn);
+  if(drawn.length < needed) p.drawStuck = true;
   render();
 }
 function playToTable(pIdx, cardUid, hidden){
@@ -431,10 +437,38 @@ function redistribute(pIdx){
   render();
 }
 
+// Une zone est « prête » quand 3 cartes ont été posées devant le joueur ce round
+// (ou qu'il est impossible d'en poser davantage : paquet/main épuisés).
+function updateFilled(){
+  const m = mode(); const t = m.tableTarget;
+  if(m.deckType==='shared-36'){
+    if(state.sharedTable.length>=t || state.sharedDeck.length===0 || state.sharedStuck) state.sharedFilled = true;
+  } else {
+    state.players.forEach(p=>{
+      let can;
+      if(m.deckType==='personal-36') can = p.table.length>=t || p.deck.length===0 || p.drawStuck;
+      else can = p.table.length>=t || (p.hand.length===0 && (p.deck.length===0 || p.drawStuck));
+      if(can) p.filledThisRound = true;
+    });
+  }
+}
+function roundBlockers(){
+  const m = mode(); const out = [];
+  if(m.deckType==='shared-36'){
+    if(!state.sharedFilled) out.push('la table partagée (3 cartes à poser)');
+  } else {
+    state.players.forEach(p=>{ if(!p.filledThisRound) out.push(p.name+' (3 cartes à poser)'); });
+  }
+  return out;
+}
 function endRound(){
+  updateFilled();
+  const blockers = roundBlockers();
+  if(blockers.length){ alert("Impossible de terminer le round : il manque des cartes pour "+blockers.join(', ')+"."); return; }
   if(state.round < state.maxRounds){
     state.round++;
-    state.players.forEach(p=>{ p.recoveredThisRound=0; p.discardsThisRound=0; });
+    state.players.forEach(p=>{ p.recoveredThisRound=0; p.discardsThisRound=0; p.filledThisRound=false; p.drawStuck=false; });
+    state.sharedFilled=false; state.sharedStuck=false;
   } else {
     state.finished = true;
   }
@@ -481,6 +515,7 @@ function renderMissionCard(card, opts){
 
 function render(){
   const app = document.getElementById('app');
+  if(state.step==='play' && !state.finished) updateFilled();
   document.body.className = 'theme-'+state.game;
 
   if(state.step==='setup'){
@@ -653,8 +688,9 @@ function render(){
       </div>
       ${reminder}
       ${boardHtml}
-      <div class="toggle-row" style="margin-top:16px; justify-content:flex-end;">
-        <button class="btn" onclick="endRound()">${state.round<state.maxRounds? 'Fin du round '+state.round+' →' : 'Terminer la partie'}</button>
+      <div class="toggle-row" style="margin-top:16px; justify-content:flex-end; align-items:center;">
+        ${roundBlockers().length ? `<span class="deckinfo" style="margin:0;">À compléter avant de continuer : ${roundBlockers().join(', ')}</span>` : ''}
+        <button class="btn" ${roundBlockers().length?'disabled':''} onclick="endRound()">${state.round<state.maxRounds? 'Fin du round '+state.round+' →' : 'Terminer la partie'}</button>
       </div>
     `;
     return;
