@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cartes de missions v3.5.1 — GF / AoF</title>
+<title>Cartes de missions — GF / AoF</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=IM+Fell+English:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -80,6 +80,7 @@
   .mission-card.hidden-card{background:repeating-linear-gradient(45deg,var(--panel2),var(--panel2) 8px,var(--panel) 8px,var(--panel) 16px);}
   .mission-card.is-defi{outline:2px solid var(--gold);}
   .mission-card.is-parangon{outline:2px dashed var(--accent);}
+  .mission-card.is-mull{outline:2px solid var(--accent); background:var(--panel);}
   .mc-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px;}
   .mc-id{font-family:var(--font-display); font-size:.75rem; color:var(--muted);}
   .mc-name{font-weight:700; font-size:.95rem;}
@@ -105,7 +106,7 @@
 <div id="app"></div>
 
 <script>
-/* ---------- DONNÉES DES CARTES (texte officiel FR, v3.5.1) ---------- */
+/* ---------- DONNÉES DES CARTES (v3.6.0 — textes FR traduits depuis l'anglais ; les cartes inchangées reprennent la traduction officielle v3.5.1) ---------- */
 const CARDS = {
   gf: [
     ['11','Capturer 1',[["Contrôler l'objectif 1.",1]]],
@@ -138,9 +139,9 @@ const CARDS = {
     ['54','Surpasser',[['Aucune unité ennemie à 6" ou moins du centre du champ de bataille.',1],['Aucune unité ennemie à 12" ou moins du centre du champ de bataille.',2]]],
     ['55','Intimidation',[["Une unité ennemie rate un Test de Moral.",1],["Trois unités ennemies ou plus ratent un Test de Moral.",2]]],
     ['56','Harmonie',[["Réussir à lancer un sort.",1],["Réussir à lancer trois sorts ou plus.",2]]],
-    ['61','Décapitation',[["Détruire le Héros ennemi à la valeur Coriace la plus élevée (ce round ou un round précédent).",2]]],
+    ['61','Décapitation',[["Détruire le Héros ennemi ayant le coût le plus élevé (ce round ou un round précédent). En cas d'égalité de coût, n'importe lequel est valable.",2]]],
     ['62','Purification',[["Détruire une figurine ennemie avec la règle spéciale Lanceur de sort.",1]]],
-    ['63','Abattez-les !',[["Détruire une figurine ennemie avec la règle spéciale Volant.",1]]],
+    ['63','Abattez-les !',[["Détruire une unité ennemie avec la règle spéciale Aéronef ou Volant.",1]]],
     ['64','Assassinat',[["Détruire une figurine ennemie avec la règle spéciale Héros.",1],["Détruire trois figurines ennemies ou plus avec la règle spéciale Héros.",2]]],
     ['65','Tueur de géant',[["Détruire une unité ennemie avec une valeur Coriace (12) ou plus.",1],["Détruire une unité ennemie avec une valeur Coriace (18) ou plus.",2]]],
     ['66','Aucune pitié',[["Remporter une mêlée avec trois blessures ou plus.",1],["Remporter une mêlée avec six blessures ou plus.",2]]]
@@ -161,9 +162,9 @@ const CARDS = {
     ['31','Tenir 1',[["Contrôler l'objectif 1 au début et à la fin du même round.",2]]],
     ['32','Tenir 2',[["Contrôler l'objectif 2 au début et à la fin du même round.",2]]],
     ['33','Tenir 3',[["Contrôler l'objectif 3 au début et à la fin du même round.",2]]],
-    ['34','Tenir 4',[["Contrôler l'objectif 4 au début et à la fin du même round.",1]]],
-    ['35','Tenir 5',[["Contrôler l'objectif 5 au début et à la fin du même round.",1]]],
-    ['36','Tenir 6',[["Contrôler l'objectif 6 au début et à la fin du même round.",1]]],
+    ['34','Tenir 4',[["Contrôler l'objectif 4 au début et à la fin du même round.",2]]],
+    ['35','Tenir 5',[["Contrôler l'objectif 5 au début et à la fin du même round.",2]]],
+    ['36','Tenir 6',[["Contrôler l'objectif 6 au début et à la fin du même round.",2]]],
     ['41',"En avant !",[["N'avoir aucune de ses unités dans sa zone de déploiement.",1]]],
     ['42','Traversée',[["Avoir au moins une de ses unités dans la zone de déploiement ennemie.",1],["Avoir au moins trois de ses unités dans la zone de déploiement ennemie.",2]]],
     ['43','Tenez la ligne !',[["Avoir au moins trois de ses unités dans sa zone de déploiement sans aucune unité ennemie dans sa zone de déploiement. (pas au 1er round)",1]]],
@@ -176,9 +177,9 @@ const CARDS = {
     ['54','Débordement',[['Aucune unité ennemie à 6" ou moins du centre du champ de bataille.',1],['Aucune unité ennemie à 12" ou moins du centre du champ de bataille.',2]]],
     ['55','Terrifiant',[["Une unité ennemie rate un Test de Moral.",1],["Trois unités ennemies ou plus ratent un Test de Moral.",2]]],
     ['56','Canalisation arcanique',[["Réussir à lancer un sort.",1],["Réussir à lancer trois sorts ou plus.",2]]],
-    ['61','Tuer le roi',[["Détruire le Héros ennemi à la valeur Coriace la plus élevée (ce round ou un round précédent).",2]]],
+    ['61','Tuer le roi',[["Détruire le Héros ennemi ayant le coût le plus élevé (ce round ou un round précédent). En cas d'égalité de coût, n'importe lequel est valable.",2]]],
     ['62','Briseur de sorts',[["Détruire une figurine ennemie avec la règle spéciale Lanceur de sort.",1]]],
-    ['63','Purifier les cieux',[["Détruire une figurine ennemie avec la règle spéciale Volant.",1]]],
+    ['63','Purifier les cieux',[["Détruire une unité ennemie avec la règle spéciale Volant.",1]]],
     ['64','Bourreau',[["Détruire une figurine ennemie avec la règle spéciale Héros.",1],["Détruire trois figurines ennemies ou plus avec la règle spéciale Héros.",2]]],
     ['65','Chasseur de monstres',[["Détruire une unité ennemie avec une valeur Coriace (12) ou plus.",1],["Détruire une unité ennemie avec une valeur Coriace (18) ou plus.",2]]],
     ['66','Pas de prisonniers',[["Remporter une mêlée avec trois blessures ou plus.",1],["Remporter une mêlée avec six blessures ou plus.",2]]]
@@ -188,9 +189,9 @@ for(const g in CARDS){ CARDS[g] = CARDS[g].map(([id,name,conditions])=>({id,name
 
 const MODES = [
   {id:'tacticien', name:'Bataille de tacticien', deckType:'personal-36', tableTarget:3,
-    desc:"Chaque joueur a son propre paquet de 36 cartes. Piochez jusqu'à avoir 3 cartes visibles sur la table. Marquez la condition remplie qui rapporte le plus de PV, défaussez la carte, puis défaussez-en une autre si vous le souhaitez."},
+    desc:"Chaque joueur a son propre paquet de 36 cartes. Piochez jusqu'à avoir 3 cartes visibles sur la table. Marquez la condition remplie qui rapporte le plus de PV, défaussez la carte, puis défaussez-en une autre si vous le souhaitez. Au début du round 1, chacun peut défausser autant de cartes qu'il veut et repiocher une fois."},
   {id:'domination', name:'Domination totale', deckType:'shared-36', tableTarget:3,
-    desc:"Les deux joueurs partagent le même paquet de 36 cartes et la même table (jusqu'à 3 cartes). Même règles de score, mais c'est une course : le premier à remplir une condition la marque."},
+    desc:"Les deux joueurs partagent le même paquet de 36 cartes et la même table (jusqu'à 3 cartes). Même règles de score, mais c'est une course : le premier à remplir une condition la marque. Au début du round 1, chaque joueur peut défausser une carte et repiocher une fois. En fin de round, seul le joueur ayant le moins de PV peut défausser une carte."},
   {id:'defi', name:'Défi direct', deckType:'personal-18', handTarget:5, tableTarget:3, hasHidden:true, special:'defi',
     desc:"Paquets personnels de 18 cartes. En début de round, chaque joueur choisit une carte adverse comme carte « Défi » : si elle est remplie, +1 PV bonus pour celui qui l'a désignée."},
   {id:'ruse', name:'Ruse stratégique', deckType:'personal-18', handTarget:5, tableTarget:3, hasHidden:true, special:'ruse',
@@ -213,8 +214,8 @@ function freshState(){
     step:'setup', game:'gf', modeId:'tacticien',
     round:1, maxRounds:4, finished:false, endPhase:false,
     players:[
-      {name:'Joueur 1', deck:[], hand:[], table:[], discard:[], score:0, handBonus:false, recoveredThisRound:0, redistributed:false, discardsThisRound:0, filledThisRound:false, drawStuck:false},
-      {name:'Joueur 2', deck:[], hand:[], table:[], discard:[], score:0, handBonus:false, recoveredThisRound:0, redistributed:false, discardsThisRound:0, filledThisRound:false, drawStuck:false}
+      {name:'Joueur 1', deck:[], hand:[], table:[], discard:[], score:0, handBonus:false, recoveredThisRound:0, mulliganUsed:false, discardsThisRound:0, filledThisRound:false, drawStuck:false},
+      {name:'Joueur 2', deck:[], hand:[], table:[], discard:[], score:0, handBonus:false, recoveredThisRound:0, mulliganUsed:false, discardsThisRound:0, filledThisRound:false, drawStuck:false}
     ],
     sharedDeck:[], sharedTable:[], sharedDiscard:[], sharedFilled:false, sharedStuck:false,
     deckChoice:[[],[]] // ids sélectionnés manuellement pour modes 18 cartes
@@ -361,6 +362,7 @@ function scoreCard(loc, pIdx, cardUid, pv, scorerIdx){
 function discardVoluntary(loc, zonePIdx, cardUid, actorIdx){
   if(!state.endPhase){ alert("La défausse volontaire n'est possible qu'en fin de round, après avoir marqué les points."); return; }
   const actor = state.players[actorIdx];
+  if(loc==='shared' && !sharedDiscardAllowed(actorIdx)){ alert("En Domination totale, seul le joueur ayant le moins de PV peut défausser une carte en fin de round (les deux en cas d'égalité)."); return; }
   if((actor.discardsThisRound||0) >= 1){ alert(actor.name+" a déjà utilisé sa défausse volontaire pour ce round."); return; }
   let arr = (loc==='shared') ? state.sharedTable : state.players[zonePIdx].table;
   const idx = arr.findIndex(c=>c.uid===cardUid);
@@ -426,16 +428,57 @@ function hideExisting(pIdx, cardUid){
   render();
 }
 
-function redistribute(pIdx){
+// Échange initial (v3.6.0) : au début du round 1, défausser des cartes puis repiocher une seule fois.
+function mullEligible(pIdx){
+  const m = mode(); const p = state.players[pIdx];
+  if(state.step!=='play' || state.round!==1 || state.endPhase || p.mulliganUsed) return false;
+  if(m.deckType==='shared-36') return state.players.every(x=>x.score===0) && state.sharedTable.length>0;
+  if(p.score!==0) return false;
+  if(m.deckType==='personal-36') return p.table.length>0;
+  return p.hand.length>0 && p.table.length===0;
+}
+function toggleMull(pIdx, cardUid){
+  if(!mullEligible(pIdx)) return;
   const p = state.players[pIdx];
-  if(state.round!==1 || p.redistributed) return;
-  p.deck.push(...p.hand);
-  p.hand=[];
-  shuffle(p.deck);
-  const activeNames = new Set(p.table.map(c=>c.name));
-  p.hand.push(...drawUnique(p.deck, activeNames, 4));
-  p.redistributed = true;
+  const c = [...p.table, ...p.hand].find(x=>x.uid===cardUid);
+  if(c) c.mull = !c.mull;
   render();
+}
+function doMulligan(pIdx){
+  if(!mullEligible(pIdx)) return;
+  const m = mode(); const p = state.players[pIdx];
+  const zone = m.deckType==='personal-36' ? p.table : p.hand;
+  const sel = zone.filter(c=>c.mull);
+  sel.forEach(c=>{ zone.splice(zone.indexOf(c),1); c.mull=false; p.discard.push(c); });
+  const names = new Set([...p.hand, ...p.table].map(c=>c.name));
+  const drawn = drawUnique(p.deck, names, sel.length);
+  zone.push(...drawn);
+  if(drawn.length < sel.length) p.drawStuck = true;
+  p.mulliganUsed = true;
+  render();
+}
+function skipMulligan(pIdx){
+  const p = state.players[pIdx];
+  [...p.table, ...p.hand].forEach(c=>c.mull=false);
+  p.mulliganUsed = true;
+  render();
+}
+function sharedMulligan(pIdx, cardUid){
+  if(!mullEligible(pIdx)) return;
+  const i = state.sharedTable.findIndex(c=>c.uid===cardUid);
+  if(i<0) return;
+  const [c] = state.sharedTable.splice(i,1);
+  state.sharedDiscard.push(c);
+  const names = new Set(state.sharedTable.map(x=>x.name));
+  const drawn = drawUnique(state.sharedDeck, names, 1);
+  state.sharedTable.push(...drawn);
+  if(!drawn.length) state.sharedStuck = true;
+  state.players[pIdx].mulliganUsed = true;
+  render();
+}
+// Domination totale : en fin de round, seul le joueur ayant le moins de PV peut défausser (égalité : les deux).
+function sharedDiscardAllowed(idx){
+  return state.players[idx].score <= state.players[idx===0?1:0].score;
 }
 
 // Une zone est « prête » quand 3 cartes ont été posées devant le joueur ce round
@@ -505,15 +548,19 @@ function renderMissionCard(card, opts){
   }).join('');
   let actions = opts.discardButtons.map(b=>{
     const used = (state.players[b.idx].discardsThisRound||0) >= 1;
-    const locked = !state.endPhase;
-    return `<button class="btn secondary small" ${used?'disabled title="Défausse déjà utilisée ce round"':(locked?'disabled title="Disponible uniquement en fin de round"':'')} onclick="discardVoluntary('${opts.loc}',${opts.pIdx===null||opts.pIdx===undefined?'null':opts.pIdx},'${card.uid}',${b.idx})">${b.label}</button>`;
+    const behind = (opts.loc==='shared' && !sharedDiscardAllowed(b.idx));
+    const locked = !state.endPhase || behind;
+    const why = behind ? 'Réservé au joueur ayant le moins de PV' : 'Disponible uniquement en fin de round';
+    return `<button class="btn secondary small" ${used?'disabled title="Défausse déjà utilisée ce round"':(locked?'disabled title="'+why+'"':'')} onclick="discardVoluntary('${opts.loc}',${opts.pIdx===null||opts.pIdx===undefined?'null':opts.pIdx},'${card.uid}',${b.idx})">${b.label}</button>`;
   }).join('');
+  if(opts.mullToggle!=null) actions += `<button class="btn ghost small" onclick="toggleMull(${opts.mullToggle},'${card.uid}')">${card.mull?'✓ ':''}Échanger</button>`;
+  if(opts.mullButtons) actions += opts.mullButtons.filter(b=>mullEligible(b.idx)).map(b=>`<button class="btn ghost small" onclick="sharedMulligan(${b.idx},'${card.uid}')">${b.label}</button>`).join('');
   if(opts.showHide) actions += `<button class="btn ghost small" onclick="hideExisting(${opts.pIdx},'${card.uid}')">Cacher</button>`;
   if(card.hidden) actions += `<button class="btn ghost small" onclick="unhide(${opts.pIdx},'${card.uid}')">Révéler</button>`;
   if(opts.showDefi!=null) actions += `<button class="btn ghost small" onclick="declareDefi(${opts.showDefi},'${card.uid}')">Défi</button>`;
   if(opts.showParangon) actions += `<button class="btn ghost small" onclick="designateParangon(${opts.pIdx},'${card.uid}')">Parangon</button>`;
   if(opts.showSwap) actions += `<button class="btn ghost small" onclick="swapBack(${opts.pIdx},'${card.uid}')">Renvoyer en main (adverse)</button>`;
-  return `<div class="mission-card ${card.hidden?'hidden-card':''} ${card.defiBy!=null?'is-defi':''} ${card.parangon?'is-parangon':''}">
+  return `<div class="mission-card ${card.hidden?'hidden-card':''} ${card.defiBy!=null?'is-defi':''} ${card.parangon?'is-parangon':''} ${card.mull?'is-mull':''}">
     <div class="mc-head"><span class="mc-name">${card.hidden?'??? (carte cachée)':card.name}</span><span class="mc-id">#${card.id}</span></div>
     ${tags.length?`<div class="mc-tags">${tags.join(' · ')}</div>`:''}
     ${card.hidden? '<div class="txt" style="font-size:.75rem;color:var(--muted);">Contenu masqué jusqu\'à révélation.</div>' : condRows}
@@ -528,7 +575,7 @@ function render(){
 
   if(state.step==='setup'){
     app.innerHTML = `
-      <div class="topbar"><h1>Cartes de missions v3.5.1</h1><span class="badge">Configuration</span></div>
+      <div class="topbar"><h1>Cartes de missions</h1><span class="badge">Configuration</span></div>
       <div class="card-block">
         <h3 style="margin-top:0;">1. Choisis le jeu</h3>
         <div class="toggle-row">
@@ -550,7 +597,7 @@ function render(){
         </div>
       </div>
       <button class="btn" onclick="goToDeckStep()">Continuer →</button>
-      <footer class="hint">Basé sur les PDF officiels "Cartes de missions v3.5.1" (One Page Rules, Gaetano Ferrara).</footer>
+      <footer class="hint">Basé sur les PDF officiels « Cartes de missions » (One Page Rules, Gaetano Ferrara) — Grimdark Future et Age of Fantasy : v3.6.0.</footer>
     `;
     return;
   }
@@ -609,13 +656,16 @@ function render(){
     if(m.deckType==='shared-36'){
       const scorerButtons = [{label:'→ '+state.players[0].name, idx:0},{label:'→ '+state.players[1].name, idx:1}];
       const discardButtons = [{label:'Défausser (J1)', idx:0},{label:'Défausser (J2)', idx:1}];
+      const mullButtons = [{label:'Échanger (J1)', idx:0},{label:'Échanger (J2)', idx:1}];
+      const mullPlayers = [0,1].filter(mullEligible);
       boardHtml = `
         <div class="card-block">
           <h3 style="margin-top:0;">Paquet partagé — ${state.sharedDeck.length} carte(s) restante(s)</h3>
           <button class="btn" onclick="drawSharedTable()" ${state.sharedTable.length>=m.tableTarget?'disabled':''}>Piocher (jusqu'à ${m.tableTarget})</button>
-          <div class="deckinfo">Défausse volontaire — ${state.players.map(p=>p.name+': '+((p.discardsThisRound||0)>=1?'utilisée':'disponible')).join(' · ')}</div>
+          <div class="deckinfo">Défausse volontaire — ${state.players.map((p,i)=>p.name+': '+((p.discardsThisRound||0)>=1?'utilisée':(sharedDiscardAllowed(i)?'disponible':'réservée au joueur en retard'))).join(' · ')}</div>
+          ${mullPlayers.length ? `<p class="panel-note">Échange initial (round 1) : ${mullPlayers.map(i=>state.players[i].name).join(' et ')} peu${mullPlayers.length>1?'vent':'t'} défausser une carte de la table et repiocher une fois. ${mullPlayers.map(i=>`<button class="btn secondary small" onclick="skipMulligan(${i})">${state.players[i].name} : garder</button>`).join(' ')}</p>` : ''}
           <div style="margin-top:12px;">
-            ${state.sharedTable.length? state.sharedTable.map(c=>renderMissionCard(c,{loc:'shared',pIdx:null,scorerButtons,discardButtons})).join('') : '<p class="panel-note">Aucune carte sur la table.</p>'}
+            ${state.sharedTable.length? state.sharedTable.map(c=>renderMissionCard(c,{loc:'shared',pIdx:null,scorerButtons,discardButtons,mullButtons})).join('') : '<p class="panel-note">Aucune carte sur la table.</p>'}
           </div>
         </div>
       `;
@@ -631,8 +681,9 @@ function render(){
             <div class="deckinfo">Paquet : ${p.deck.length} carte(s) · Défausse : ${p.discard.length}</div>
             <div class="deckinfo">Défausse volontaire : ${(p.discardsThisRound||0)>=1?'utilisée':'disponible'}</div>
             <button class="btn" onclick="drawTable36(${pIdx})" ${p.table.length>=m.tableTarget?'disabled':''}>Piocher (jusqu'à ${m.tableTarget})</button>
+            ${mullEligible(pIdx) ? `<div class="panel-note" style="margin-top:10px;">Échange initial (round 1) : clique « Échanger » sur les cartes à défausser, puis valide. Une seule repioche.<div class="card-actions"><button class="btn small" onclick="doMulligan(${pIdx})">Valider l'échange (${p.table.filter(c=>c.mull).length})</button><button class="btn secondary small" onclick="skipMulligan(${pIdx})">Garder mes cartes</button></div></div>` : ''}
             <div style="margin-top:10px;">
-              ${p.table.length? p.table.map(c=>renderMissionCard(c,{loc:'table',pIdx,scorerButtons,discardButtons})).join('') : '<p class="panel-note">Aucune carte sur la table.</p>'}
+              ${p.table.length? p.table.map(c=>renderMissionCard(c,{loc:'table',pIdx,scorerButtons,discardButtons,mullToggle: mullEligible(pIdx)?pIdx:null})).join('') : '<p class="panel-note">Aucune carte sur la table.</p>'}
             </div>
           </div>`;
         }).join('')}
@@ -657,12 +708,13 @@ function render(){
             <div class="deckinfo">Défausse volontaire : ${(p.discardsThisRound||0)>=1?'utilisée':'disponible'}</div>
             <div class="card-actions" style="margin-bottom:8px;">${specialBits.join('')}</div>
             <button class="btn" onclick="drawHand(${pIdx})" ${p.hand.length>=(p.handBonus?6:m.handTarget)?'disabled':''}>Piocher en main (jusqu'à ${p.handBonus?6:m.handTarget})</button>
-            ${state.round===1 && !p.redistributed && p.hand.length>0 && p.table.length===0 ? `<button class="btn ghost small" onclick="redistribute(${pIdx})">Redistribution (round 1)</button>` : ''}
+            ${mullEligible(pIdx) ? `<div class="panel-note" style="margin-top:10px;">Échange initial (round 1) : clique « Échanger » sur les cartes de ta main à défausser, puis valide. Une seule repioche.<div class="card-actions"><button class="btn small" onclick="doMulligan(${pIdx})">Valider l'échange (${p.hand.filter(c=>c.mull).length})</button><button class="btn secondary small" onclick="skipMulligan(${pIdx})">Garder ma main</button></div></div>` : ''}
             <h3 style="font-size:.85rem;margin:10px 0 4px;">Main (${p.hand.length})</h3>
             <div class="hand-row">
               ${p.hand.length? p.hand.map(c=>`
-                <div class="hand-chip">
+                <div class="hand-chip" ${c.mull?'style="outline:2px solid var(--accent);"':''}>
                   #${c.id} ${c.name}
+                  ${mullEligible(pIdx) ? `<button class="btn ghost small" onclick="toggleMull(${pIdx},'${c.uid}')">${c.mull?'✓ ':''}Échanger</button>` : ''}
                   <button class="btn small" onclick="playToTable(${pIdx},'${c.uid}',false)" ${p.table.length>=m.tableTarget?'disabled':''}>Jouer</button>
                   ${m.hasHidden? `<button class="btn ghost small" onclick="playToTable(${pIdx},'${c.uid}',true)" ${p.table.length>=m.tableTarget?'disabled':''}>Jouer caché</button>`:''}
                 </div>`).join('') : '<span class="panel-note" style="padding:6px 10px;">Main vide.</span>'}
@@ -690,13 +742,14 @@ function render(){
         <h1>${state.game==='gf'?'Grimdark Future':'Age of Fantasy'} — ${m.name}</h1>
         <div class="toggle-row" style="margin:0;">
           <span class="badge">${m.deckType==='personal-18' ? 'Personnalisé (18 cartes)' : 'Classique (36 cartes)'}</span>
+          <span class="badge">v3.6.0</span>
           <span class="badge">Round ${state.round}/${state.maxRounds}</span>
           <button class="btn secondary small" onclick="resetGame()">Recommencer</button>
         </div>
       </div>
       ${reminder}
       ${boardHtml}
-      ${state.endPhase ? `<p class="panel-note" style="margin-top:16px;">Fin de round : marquez vos points, puis chaque joueur peut défausser <b>une</b> carte restante avant de passer au round suivant.</p>` : ''}
+      ${state.endPhase ? `<p class="panel-note" style="margin-top:16px;">${m.deckType==='shared-36' ? 'Fin de round : marquez vos points, puis le joueur ayant le <b>moins de PV</b> peut défausser <b>une</b> carte restante (les deux en cas d\'égalité) avant de passer au round suivant.' : 'Fin de round : marquez vos points, puis chaque joueur peut défausser <b>une</b> carte restante avant de passer au round suivant.'}</p>` : ''}
       <div class="toggle-row" style="margin-top:16px; justify-content:flex-end; align-items:center;">
         ${(!state.endPhase && roundBlockers().length) ? `<span class="deckinfo" style="margin:0;">À compléter avant de continuer : ${roundBlockers().join(', ')}</span>` : ''}
         ${state.endPhase
