@@ -1,6 +1,6 @@
-# Cartes de missions v3.5.1 — Grimdark Future / Age of Fantasy
+# Cartes de missions — Grimdark Future / Age of Fantasy
 
-Outil HTML autonome (une seule page, aucune dépendance serveur) pour jouer et suivre une partie avec le système de **cartes de missions v3.5.1** de [One Page Rules](https://www.onepagerules.com/) — **Grimdark Future** et **Age of Fantasy**.
+Outil HTML autonome (une seule page, aucune dépendance serveur) pour jouer et suivre une partie avec le système de **cartes de missions** de [One Page Rules](https://www.onepagerules.com/) — **Grimdark Future** et **Age of Fantasy**.
 
 👉 [Utiliser l'outil](https://lartdeschimeres.github.io/opr-cartes-missions/) *(lien actif une fois GitHub Pages activé, voir plus bas)*
 
@@ -12,7 +12,9 @@ Outil HTML autonome (une seule page, aucune dépendance serveur) pour jouer et s
   - **Personnalisé (18 cartes)** : Défi direct, Ruse stratégique, Stratagème planifié, Récupération de coordonnées, Suprématie logistique, Parangons tactiques
 - Constitution manuelle ou aléatoire des paquets personnalisés de 18 cartes
 - Suivi complet d'une partie en 4 rounds : pioche, main, table, score, défausse
-- Une seule défausse volontaire par joueur et par round (conforme aux règles)
+- Échange initial au round 1 (défausser des cartes et repiocher une fois), conforme à la v3.6.0
+- Une seule défausse volontaire par joueur et par round, uniquement en fin de round ; en Domination totale, réservée au joueur ayant le moins de PV
+- Fin de round bloquée tant que les 3 cartes ne sont pas posées
 - Empêche qu'un joueur ait deux fois la même mission active en même temps
 - Mécaniques spéciales prises en charge manuellement : carte Défi (+1 PV), carte Parangon (+1 PV), Stratagème (renvoi de carte), Récupération de coordonnées, Suprématie logistique (pioche à 6), Ruse stratégique (révélation forcée)
 - Aucune installation, aucun compte, aucune donnée envoyée où que ce soit : tout tourne dans le navigateur
@@ -26,7 +28,10 @@ Deux options :
 
 ## Origine des textes
 
-Les textes des missions et les règles des modes de jeu proviennent des PDF officiels **« Cartes de missions v3.5.1 »** publiés gratuitement par One Page Rules (auteur : Gaetano Ferrara), pour Grimdark Future et Age of Fantasy.
+Les textes des missions et les règles des modes de jeu proviennent des PDF officiels **« Cartes de missions »** publiés gratuitement par One Page Rules (auteur : Gaetano Ferrara) :
+
+Version intégrée : **v3.6.0** pour Grimdark Future et Age of Fantasy. Les textes inchangés depuis la v3.5.1 reprennent la traduction française officielle ; les textes modifiés en v3.6.0 (cartes 61 et 63) ont été traduits depuis l'anglais.
+
 
 Ce projet est un outil non officiel, créé par un fan, pour un usage personnel de suivi de partie. Il n'est pas affilié à One Page Rules. Les textes des missions restent la propriété de leurs auteurs — merci de vérifier la politique de contenu communautaire d'OPR avant toute redistribution commerciale.
 
